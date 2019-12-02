@@ -358,7 +358,7 @@ bool StratumJobBitcoin::initFromGbt(
   JsonNode jgbt = r["result"];
   gbtHash_ = gbtHash.ToString();
 
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV) || defined(CHAIN_TYPE_FCH)
   bool isLightVersion =
       jgbt[LIGHTGBT_JOB_ID].type() == Utilities::JS::type::Str;
   // merkle branch, merkleBranch_ could be empty

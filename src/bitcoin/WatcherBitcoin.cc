@@ -349,7 +349,7 @@ void PoolWatchClientBitcoin::handleStratumMessage(const string &line) {
             return;
           }
 
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV) || defined(CHAIN_TYPE_FCH)
           // BCH adjusts the difficulty in each block,
           // its DAA algorithm will produce a difficulty change between 0.5 and
           // 2 times.

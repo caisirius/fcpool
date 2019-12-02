@@ -35,6 +35,7 @@ void TestBitcoinBlockReward(int height, int64_t expectedReward) {
   int64_t reward = 0;
 
   reward = GetBlockReward(height, consensus);
+  printf("%d-%d-%d\n",height,reward, expectedReward);
   ASSERT_EQ(reward, expectedReward);
 }
 
@@ -79,6 +80,14 @@ TEST(BitcoinUtils, GetBlockRewardZCash) {
   TestBitcoinBlockReward(6930000, 4882812);
   TestBitcoinBlockReward(13300000, 38146);
   TestBitcoinBlockReward(70000000, 0);
+}
+#elif defined(CHAIN_TYPE_FCH)
+TEST(BitcoinUtils, GetBlockRewardFreecash) {
+  TestBitcoinBlockReward(1, 2500000000); //25FCH
+  TestBitcoinBlockReward(3333, 2500000000);
+  TestBitcoinBlockReward(576000, 2000000000);
+  TestBitcoinBlockReward(576000*2, 1600000000);
+  TestBitcoinBlockReward(576000*3, 1280000000);
 }
 #else
 TEST(BitcoinUtils, GetBlockRewardBitcoin) {

@@ -44,7 +44,7 @@ using CTransactionRef = std::shared_ptr<const CTransaction>;
 ////////////////////////////////// BlockMaker //////////////////////////////////
 class BlockMakerBitcoin : public BlockMaker {
 protected:
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV) || defined(CHAIN_TYPE_FCH)
   mutex rawGbtlightLock_;
   std::map<uint256, std::string> rawGbtlightMap_;
 #endif // CHAIN_TYPE_BCH
@@ -125,7 +125,7 @@ protected:
       const CBlockHeader &header,
       const uint64_t coinbaseValue,
       const int32_t blksize);
-#if defined(CHAIN_TYPE_BCH)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_FCH)
   void
   submitBlockLightNonBlocking(const string &blockHex, const string &job_id);
   void _submitBlockLightThread(

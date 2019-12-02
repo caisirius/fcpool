@@ -42,12 +42,12 @@
 #include <key_io.h>
 #endif
 
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV) || defined(CHAIN_TYPE_FCH)
 
 // header that defined DecodeDestination & IsValidDestinationString
 #include <dstencode.h>
 
-#ifdef CHAIN_TYPE_BCH
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_FCH)
 
 #define AMOUNT_TYPE(x) Amount(x *SATOSHI)
 #define COIN_TO_SATOSHIS (COIN / SATOSHI)
@@ -116,7 +116,7 @@ bool CheckEquihashSolution(
     const CBlockHeader *pblock, const CChainParams &params);
 #endif
 
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_ZEC)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_ZEC) || defined(CHAIN_TYPE_FCH)
 std::vector<uint256>
 ComputeMerkleBranch(const std::vector<uint256> &leaves, uint32_t position);
 std::vector<uint256> BlockMerkleBranch(const CBlock &block, uint32_t position);

@@ -217,6 +217,34 @@ TEST(JobMaker, ZCashAddress) {
           "tmSjdKFY4N23N9as5pd4APLtrTpjvQvXF8R"),
       true);
 }
+#elif defined(CHAIN_TYPE_FCH)
+TEST(JobMaker, FreecashAddress) {
+  // main net
+  SelectParams(CBaseChainParams::MAIN);
+  ASSERT_EQ(
+      BitcoinUtils::IsValidDestinationString(
+          "FThuDAq5ZPw6M2YAqHsBAVd9vPXoUySE7i"),
+      true);
+  ASSERT_EQ(
+      BitcoinUtils::IsValidDestinationString(
+          "FThuDAq0ZPw6M2YAqHsBAVd9vPXoUySE7i"),
+      false);
+  // test net
+  SelectParams(CBaseChainParams::TESTNET);
+  ASSERT_EQ(
+      BitcoinUtils::IsValidDestinationString(
+          "n1VAs96DPUmTXv1qmu6q3VhdCDSJFzQxKp"),
+      true);
+  ASSERT_EQ(
+      BitcoinUtils::IsValidDestinationString(
+          "myxopLJB19oFtNBdrAxD5Z34Aw6P8o9P8U"),
+      true);
+  ASSERT_EQ(
+      BitcoinUtils::IsValidDestinationString(
+          "myxopLJB19oFtNBdrADD5Z34Aw6P8o9P8U"),
+      false);
+
+}
 #else
 TEST(JobMaker, BitcoinAddress) {
   // main net

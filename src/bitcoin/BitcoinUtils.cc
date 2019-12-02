@@ -55,7 +55,7 @@ uint256 ComputeCoinbaseMerkleRoot(
   return hashMerkleRoot;
 }
 
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_ZEC)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_ZEC) || defined(CHAIN_TYPE_FCH)
 /**
  * This implements a constant-space merkle root/path calculator, limited to 2^32
  * leaves.
@@ -317,6 +317,45 @@ int64_t GetBlockReward(int nHeight, const Consensus::Params &consensusParams) {
 
     return nSubsidy;
   }
+}
+#elif defined(CHAIN_TYPE_FCH)
+static int64_t getSubsidy(unsigned int halvings) {
+    static int64_t subsidys[] = {
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0
+    };
+    if(subsidys[0] == 0) { // init
+        Amount nInitSubsidy = INITIAL_REWARD;
+        int64_t prevSubsidy = nInitSubsidy.GetSatoshis();
+        for (int nHalvings = 1; nHalvings < 64; nHalvings++) {
+            subsidys[nHalvings] = (Amount(prevSubsidy << 2) / 5).GetSatoshis();
+            prevSubsidy = subsidys[nHalvings];
+        }
+        subsidys[0] = nInitSubsidy.GetSatoshis();
+    }
+
+    if(halvings >= 64) {
+        return 0;
+    }
+    return subsidys[halvings];
+}
+
+int64_t GetBlockReward(int nHeight, const Consensus::Params &consensusParams) {
+  int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
+  // Force block reward to zero when right shift is undefined.
+  if (halvings >= 64) {
+    return 0;
+  }
+
+  // Subsidy is cut in 4/5 every 576,000 blocks which will occur
+  // approximately every 400 days.
+  return getSubsidy(halvings);
 }
 
 #else

@@ -41,7 +41,7 @@ class GbtMaker {
   string bitcoindRpcAddr_;
   string bitcoindRpcUserpass_;
   atomic<uint32_t> lastGbtMakeTime_;
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV) || defined(CHAIN_TYPE_FCH)
   atomic<uint32_t> lastGbtLightMakeTime_;
 #endif
   uint32_t kRpcCallInterval_;
@@ -55,7 +55,7 @@ class GbtMaker {
   string makeRawGbtMsg();
   void submitRawGbtMsg(bool checkTime);
 
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV) || defined(CHAIN_TYPE_FCH)
   bool bitcoindRpcGBTLight(string &resp);
   string makeRawGbtLightMsg();
   void submitRawGbtLightMsg(bool checkTime);
@@ -79,7 +79,7 @@ public:
 
   bool init();
   void stop();
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV) || defined(CHAIN_TYPE_FCH)
   void runLightGbt();
 #endif
   void run();

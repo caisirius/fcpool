@@ -185,7 +185,7 @@ bool JobMakerHandlerBitcoin::addRawGbt(const string &msg) {
   assert(nodeGbt["result"]["height"].type() == Utilities::JS::type::Int);
   const uint32_t height = nodeGbt["result"]["height"].uint32();
 
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV) || defined(CHAIN_TYPE_FCH)
   bool isLightVersion =
       nodeGbt["result"][LIGHTGBT_JOB_ID].type() == Utilities::JS::type::Str;
   bool isEmptyBlock = false;

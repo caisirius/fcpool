@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
     if (!gGbtMaker->init()) {
       LOG(FATAL) << "gbtmaker init failure";
     } else {
-#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV)
+#if defined(CHAIN_TYPE_BCH) || defined(CHAIN_TYPE_BSV) || defined(CHAIN_TYPE_FCH)
       bool runLightGbt = false;
       cfg.lookupValue("gbtmaker.lightgbt", runLightGbt);
       if (runLightGbt) {

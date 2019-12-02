@@ -58,7 +58,7 @@ endif()
 #
 # Chain Type
 #
-set(SUPPORTED_CHAIN_TYPES "BTC|BCH|BSV|UBTC|SBTC|LTC|ZEC")
+set(SUPPORTED_CHAIN_TYPES "BTC|BCH|BSV|UBTC|SBTC|LTC|ZEC|FCH")
 if(NOT CHAIN_TYPE)
   message(FATAL_ERROR "Chain type not defined! (-DCHAIN_TYPE=${SUPPORTED_CHAIN_TYPES})")
 endif()
@@ -111,6 +111,11 @@ elseif(CHAIN_TYPE STREQUAL "ZEC")
   set(POOL__DEFAULT_INSTALL_PREFIX "/work/btcpool.zec")
 
   add_definitions(-DINCLUDE_BTC_KEY_IO_H)
+  # Freecash
+elseif(CHAIN_TYPE STREQUAL "FCH")
+  set(CHAIN_NAME "Freecash")
+  set(POOL__DEB_PACKNAME_POSTFIX "${POOL__DEB_PACKNAME_POSTFIX}-freecash")
+  set(POOL__DEFAULT_INSTALL_PREFIX "/work/btcpool.fch")
 
 # Unknown
 else()
@@ -259,7 +264,15 @@ elseif(CHAIN_TYPE STREQUAL "ZEC")
     "${CHAIN_SRC_ROOT}/src/snark/libsnark.a"
     "${CHAIN_SRC_ROOT}/depends/${ZCASH_PLATFORM}/lib/libsodium.a"
     "${CHAIN_SRC_ROOT}/depends/${ZCASH_PLATFORM}/lib/librustzcash.a")
-
+elseif(CHAIN_TYPE STREQUAL "FCH")
+  set(BITCOIN_LIBRARIES ${BITCOIN_LIBRARIES}
+    "${CHAIN_SRC_ROOT}/src/libfreecash_common.a"
+    "${CHAIN_SRC_ROOT}/src/libfreecash_consensus.a"
+    "${CHAIN_SRC_ROOT}/src/libfreecash_util.a"
+    "${CHAIN_SRC_ROOT}/src/crypto/libfreecash_crypto_base.a"
+    "${CHAIN_SRC_ROOT}/src/crypto/libfreecash_crypto_shani.a"
+    "${CHAIN_SRC_ROOT}/src/crypto/libfreecash_crypto_avx2.a"
+    "${CHAIN_SRC_ROOT}/src/crypto/libfreecash_crypto_sse41.a")
 else()
   set(BITCOIN_LIBRARIES ${BITCOIN_LIBRARIES}
     "${CHAIN_SRC_ROOT}/src/libbitcoin_common.a"

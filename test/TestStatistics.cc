@@ -244,6 +244,8 @@ TEST(ShareStatsDay, ShareStatsDay) {
       ASSERT_EQ((uint64_t)ss.earn_, 37ULL);
 #elif defined(CHAIN_TYPE_UBTC)
       ASSERT_EQ((uint64_t)ss.earn_, 1975828UL);
+#elif defined(CHAIN_TYPE_FCH)// don`t know why this number
+      ASSERT_EQ((uint64_t)ss.earn_, 49395718UL);
 #else
       ASSERT_EQ((uint64_t)ss.earn_, 24697859UL);
 #endif
@@ -257,6 +259,8 @@ TEST(ShareStatsDay, ShareStatsDay) {
     ASSERT_EQ((uint64_t)ss.earn_, 904UL);
 #elif defined(CHAIN_TYPE_UBTC)
     ASSERT_EQ((uint64_t)ss.earn_, 47419890UL);
+#elif defined(CHAIN_TYPE_FCH)// don`t know why this number
+    ASSERT_EQ((uint64_t)ss.earn_, 1185497253UL);
 #else
     ASSERT_EQ((uint64_t)ss.earn_, 592748626UL);
 #endif
