@@ -35,7 +35,6 @@ void TestBitcoinBlockReward(int height, int64_t expectedReward) {
   int64_t reward = 0;
 
   reward = GetBlockReward(height, consensus);
-  printf("%d-%d-%d\n",height,reward, expectedReward);
   ASSERT_EQ(reward, expectedReward);
 }
 

@@ -331,7 +331,7 @@ TEST(JobMaker, BitcoinAddress) {
 }
 #endif
 
-#ifndef CHAIN_TYPE_ZEC
+#if !defined CHAIN_TYPE_ZEC && !defined CHAIN_TYPE_FCH
 TEST(Stratum, StratumJobBitcoin) {
   StratumJobBitcoin sjob;
   string poolCoinbaseInfo = "/BTC.COM/";
@@ -442,6 +442,128 @@ TEST(Stratum, StratumJobBitcoin) {
 }
 #endif
 
+#ifdef CHAIN_TYPE_FCH
+TEST(Stratum, StratumJobFreecash) {
+    StratumJobBitcoin sjob;
+    string poolCoinbaseInfo = "/FCH.COM/";
+    uint32_t blockVersion = 0;
+    bool res;
+    {
+        string gbt = R"EOF(
+        {
+            "result":{
+                "capabilities":[
+                    "proposal"
+                ],
+                "version":536870912,
+                "previousblockhash":"000000027b87f5c710539f52f24cd60db9f35669d4c4c7d51495fad8946c9833",
+                "transactions":[
+                    {
+                        "data":"0200000002693187634b3a4b1fbab7466d31c7d68c2cd0ec09d0be3dc5b73f0c1c011511e20000000064418fc7d31d31795ad8c7a190a203606951b5636af782aee3de2180fa06861ee40c7572515a5a59abd59aa82c7d8a542bedf1c50df7d792b15bd21f38bf359f21cc41210361db50a12f189d83f2abb121396589cd9509974d40f2fd718d0411ac7ea306c4feffffffc5ba752245ff1a33ab9a8d60b6dd7e446eef361ef517e502665d361a7d5c419600000000644148a48b901374651a93f3d486d03115ae37b2fcebe5284dd0fc8d75f721d2ef5d7a6490030b8f30a27f23f2d19ff414c99f435639a485d0afd3978f565e47452b412103cd90b4fe1b0edd1be38831b7765fa0c8b5e34a9a74affc226fbbceee7721e09efeffffff0260720195000000001976a9147d6e642e93bba96212ef1999acf500f751adda5a88ac80c4270c000000001976a91458758b1ad88b52f833ba0b4643836c849056f23a88ac55560100",
+                        "txid":"891be5f210828eb33786e7976aef4b2273f77ec742448ca2145beb7668023c55",
+                        "hash":"891be5f210828eb33786e7976aef4b2273f77ec742448ca2145beb7668023c55",
+                        "fee":360,
+                        "sigops":2
+                    }
+                ],
+                "coinbaseaux":{
+                    "flags":""
+                },
+                "coinbasevalue":2500000360,
+                "coinbasedevreward":{
+                    "value":2500000000,
+                    "scriptpubkey":"76a914cf5618a09edc3141eabf6af2f6c7cf387979d7eb88ac"
+                },
+                "longpollid":"000000027b87f5c710539f52f24cd60db9f35669d4c4c7d51495fad8946c9833176",
+                "target":"0000000b66660000000000000000000000000000000000000000000000000000",
+                "mintime":1575362867,
+                "mutable":[
+                    "time",
+                    "transactions",
+                    "prevblock"
+                ],
+                "noncerange":"00000000ffffffff",
+                "sigoplimit":20000,
+                "sizelimit":1000000,
+                "curtime":1575363341,
+                "bits":"1d0b6666",
+                "height":87638
+            },
+            "error":null,
+            "id":"1"
+        }
+    )EOF";
+
+        blockVersion = 536870912;
+        SelectParams(CBaseChainParams::TESTNET);
+        ASSERT_EQ(
+                BitcoinUtils::IsValidDestinationString(
+                        "myxopLJB19oFtNBdrAxD5Z34Aw6P8o9P8U"),
+                true);
+
+        CTxDestination poolPayoutAddrTestnet =
+                BitcoinUtils::DecodeDestination("myxopLJB19oFtNBdrAxD5Z34Aw6P8o9P8U");
+        res = sjob.initFromGbt(
+                gbt.c_str(),
+                poolCoinbaseInfo,
+                poolPayoutAddrTestnet,
+                blockVersion,
+                "",
+                RskWork(),
+                VcashWork(),
+                false);
+        ASSERT_EQ(res, true);
+
+        const string jsonStr = sjob.serializeToJson();
+        StratumJobBitcoin sjob2;
+        res = sjob2.unserializeFromJson(jsonStr.c_str(), jsonStr.length());
+        ASSERT_EQ(res, true);
+
+        ASSERT_EQ(
+                sjob2.prevHash_,
+                uint256S("000000027b87f5c710539f52f24cd60db9f35669d4c4c7d51495fad8946c9833"));
+        ASSERT_EQ(
+                sjob2.prevHashBeStr_,
+                "946c98331495fad8d4c4c7d5b9f35669f24cd60d10539f527b87f5c700000002");
+        ASSERT_EQ(sjob2.height_, 87638);
+        // 46 bytes, 5 bytes (timestamp), 9 bytes (poolCoinbaseInfo)
+        // 02000000010000000000000000000000000000000000000000000000000000000000000000ffffffff1e03b7b50d
+        // 0402363d58 2f4254432e434f4d2f
+        ASSERT_EQ(
+                sjob2.coinbase1_.substr(0, 92),
+                "0200000001000000000000000000000000000000000000000000000000000000000000"
+                        "0000ffffffff1e03565601");
+        ASSERT_EQ(sjob2.coinbase1_.substr(102, 18), "2f4643482e434f4d2f");
+        // 0402363d58 -> 0x583d3602 = 1480406530 = 2016-11-29 16:02:10
+        uint32_t ts =
+                (uint32_t)strtoull(sjob2.coinbase1_.substr(94, 8).c_str(), nullptr, 16);
+        ts = HToBe(ts);
+        ASSERT_EQ(ts == time(nullptr) || ts + 1 == time(nullptr), true);
+
+        ASSERT_EQ(
+                sjob2.coinbase2_,
+                "ffffffff" // sequence
+                "02" // 2 output
+                "68fa029500000000" // value
+                // 0x19 -> 25 bytes
+                "1976a914ca560088c0fb5e6f028faa11085e643e343a8f5c88ac"
+                "00f9029500000000"
+                "1976a914cf5618a09edc3141eabf6af2f6c7cf387979d7eb88ac"
+                // lock_time
+                "00000000");
+        ASSERT_EQ(sjob2.merkleBranch_.size(), 1U);
+        ASSERT_EQ(
+                sjob2.merkleBranch_[0],
+                uint256S("891be5f210828eb33786e7976aef4b2273f77ec742448ca2145beb7668023c55"));
+        ASSERT_EQ(sjob2.nVersion_, 536870912);
+        ASSERT_EQ(sjob2.nBits_, 487286374U);
+        ASSERT_EQ(sjob2.nTime_, 1575363341U);
+        ASSERT_EQ(sjob2.minTime_, 1575362867U);
+        ASSERT_EQ(sjob2.coinbaseValue_, 2500000360);
+        ASSERT_GE(time(nullptr), jobId2Time(sjob2.jobId_));
+    }
+}
+#endif
 #ifdef CHAIN_TYPE_BTC
 TEST(Stratum, StratumJobWithWitnessCommitment) {
   StratumJobBitcoin sjob;

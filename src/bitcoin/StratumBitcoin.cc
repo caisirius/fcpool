@@ -723,6 +723,24 @@ bool StratumJobBitcoin::initFromGbt(
 
       cbOut.push_back(paymentTxOut);
     }
+#ifdef CHAIN_TYPE_FCH
+    //
+    // output[1] (mandatory for freecash): developer award
+    //
+    {
+      CTxOut devAwardTxOut;
+      std::string tmp = jgbt["coinbasedevreward"]["scriptpubkey"].str().substr(6, 40);
+      devAwardTxOut.scriptPubKey = CScript() << OP_DUP << OP_HASH160
+                                             << ParseHex(tmp)
+                                             << OP_EQUALVERIFY
+                                             << OP_CHECKSIG;
+
+      int64_t devValue = jgbt["coinbasedevreward"]["value"].int64();
+      devAwardTxOut.nValue = AMOUNT_TYPE(devValue);
+
+      cbOut.push_back(devAwardTxOut);
+    }
+#else
     //
     // output[1] (optional): witness commitment
     //
@@ -739,6 +757,7 @@ bool StratumJobBitcoin::initFromGbt(
 
       cbOut.push_back(witnessTxOut);
     }
+#endif
 
 #ifdef CHAIN_TYPE_UBTC
     //
